@@ -37,8 +37,12 @@ public class ArrayStack<E> implements Stack<E> {
     }
 
     public boolean contains(Object o) {
-        for (Object e: data) {
-            if (e.equals(o)) return true;
+        if (o == null) {
+            for (int i = 0; i < size; i++)
+                if (data[i] == null) return true;
+        } else {
+            for (int i = 0; i < size; i++)
+                if (o.equals(data[i])) return true;
         }
         return false;
     }
@@ -68,9 +72,10 @@ public class ArrayStack<E> implements Stack<E> {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
-        for(int i = 0; i < a.length; i++) {
-            a[i] = (T) data[i];
-        }
+        if (a.length < size)
+            return (T[]) Arrays.copyOf(data, size, a.getClass());
+        System.arraycopy(data, 0, a, 0, size);
+        if (a.length > size) a[size] = null;
         return a;
     }
 
@@ -80,44 +85,46 @@ public class ArrayStack<E> implements Stack<E> {
     }
 
     public boolean remove(Object o) {
-        for(int i = 0; i < size; i++) {
-            if (o.equals(data[i])) {
-                erase(i);
-                return true;
-            }
+        if (o == null) {
+            for (int i = 0; i < size; i++)
+                if (data[i] == null) {
+                    erase(i);
+                    return true;
+                }
+        } else {
+            for (int i = 0; i < size; i++)
+                if (o.equals(data[i])) {
+                    erase(i);
+                    return true;
+                }
         }
         return false;
     }
 
     public boolean containsAll(Collection<?> c) {
-        boolean result = true;
-        for (Object e: c) {
-            result &= contains(e);
-        }
-        return result;
-    }
-
-    public boolean addAll(Collection<? extends E> c) {
-        for (E e : c) {
-            this.push(e);
-        }
+        for (Object e : c)
+            if (!contains(e))
+                return false;
         return true;
     }
 
+    public boolean addAll(Collection<? extends E> c) {
+        for (E e : c)
+            this.push(e);
+        return !c.isEmpty();
+    }
+
     public boolean removeAll(Collection<?> c) {
-        for(int i = 0; i < size; i++) {
-            if (c.equals(data[i])) {
-                data[i] = null;
-            }
-        }
-        return eraseAll();
+        return removeOrRetain(c, false);
     }
 
     public boolean retainAll(Collection<?> c) {
-        return false;
+        return removeOrRetain(c, true);
     }
 
     public void clear() {
+        for (int i = 0; i < size; i++)
+            data[i] = null;
         size = 0;
     }
 
@@ -127,24 +134,21 @@ public class ArrayStack<E> implements Stack<E> {
         data = nData;
     }
 
-    private boolean eraseAll() {
-        int offset = 0;
-        boolean result = false;
-        for(int i = 0; i < size; i++){
-            if (data[i] == null) {
-                result = true;
-                offset++;
-                size--;
-            }
-            data[i] = data[i + offset];
-        }
-        return result;
+    private void erase(int n) {
+        if (size-- - n >= 0)
+            System.arraycopy(data, n + 1, data, n, size - n);
+        data[size] = null;
     }
 
-    private void erase(int n) {
-        size--;
-        for(int i = n; i < size; i++){
-            data[i] = data[i + 1];
-        }
+    private boolean removeOrRetain(Collection<?> c, boolean switcher) {
+        int offset = 0;
+        for (int i = 0; i < size; i++)
+            if (c.contains(data[i]) == switcher)
+                data[offset++] = data[i];
+        for (int i = offset; i < size; i++)
+            data[i] = null;
+        boolean result = (offset != size);
+        size = offset;
+        return result;
     }
 }

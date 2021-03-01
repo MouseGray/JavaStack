@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -9,6 +10,8 @@ public class StackTest {
     public void arrayStackTest() {
         ArrayStack<String> arrayStack = new ArrayStack<>();
 
+        LinkedList<String> arr = new LinkedList<>();
+        arr.removeAll(arr);
         Assertions.assertTrue(arrayStack.empty());
 
         arrayStack.push("A");

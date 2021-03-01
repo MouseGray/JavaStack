@@ -1,6 +1,10 @@
+import com.sun.istack.internal.NotNull;
+
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 public class LinkedStack<E> implements Stack<E> {
     private Node data = null;
@@ -56,6 +60,7 @@ public class LinkedStack<E> implements Stack<E> {
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public E next() {
                 return (E) get(index--).value;
             }
@@ -76,11 +81,12 @@ public class LinkedStack<E> implements Stack<E> {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
-        Node current = data;
-        for (int i = 0; i < size(); i++) {
-            a[i] = (T) current.value;
-            current = current.ptr;
-        }
+        if (a.length < size())
+            a = (T[]) Array.newInstance(a.getClass().getComponentType(), size());
+        int i = 0;
+        for (Node current = data; current != null; current = current.ptr)
+            a[i++] = (T) current.value;
+        if (a.length > size()) a[size()] = null;
         return a;
     }
 
@@ -90,24 +96,63 @@ public class LinkedStack<E> implements Stack<E> {
     }
 
     public boolean remove(Object o) {
+        if (data == null) return false;
+        if (o == null) {
+            if (data.value == null) {
+                data = data.ptr;
+                return true;
+            }
+            for (Node node = data; ; node = node.ptr) {
+                if (node.ptr == null) break;
+                if (node.ptr.value == null) {
+                    node.ptr = node.ptr.ptr;
+                    return true;
+                }
+            }
+        } else {
+            if (data.value.equals(o)) {
+                data = data.ptr;
+                return true;
+            }
+            for (Node node = data; ; node = node.ptr) {
+                if (node.ptr == null) break;
+                if (node.ptr.value.equals(o)) {
+                    node.ptr = node.ptr.ptr;
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return false;
+        for (Object e : c)
+            if (!contains(e))
+                return false;
+        return true;
     }
 
     public boolean addAll(Collection<? extends E> c) {
         for (E e : c) {
             this.push(e);
         }
-        return true;
+        return !c.isEmpty();
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return false;
+        if (data.value.equals(o)) {
+            data = data.ptr;
+            return true;
+        }
+        for (Node node = data; ; node = node.ptr) {
+            if (node.ptr == null) break;
+            if (node.ptr.value.equals(o)) {
+                node.ptr = node.ptr.ptr;
+                return true;
+            }
+        }
     }
 
     @Override
