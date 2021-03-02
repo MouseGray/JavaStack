@@ -1,11 +1,13 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
 public class ArrayStack<E> implements Stack<E> {
-    Object[] data = new Object[0];
-    int size = 0;
+    private Object[] data = new Object[0];
+    private int size = 0;
 
     public void push(E element) {
         if (data.length == size) resize();
@@ -47,6 +49,7 @@ public class ArrayStack<E> implements Stack<E> {
         return false;
     }
 
+    @NotNull
     @Override
     public Iterator<E> iterator() {
         return new Iterator<E>() {
@@ -64,11 +67,13 @@ public class ArrayStack<E> implements Stack<E> {
         };
     }
 
+    @NotNull
     @Override
     public Object[] toArray() {
         return Arrays.copyOf(data, size);
     }
 
+    @NotNull
     @Override
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
@@ -114,11 +119,11 @@ public class ArrayStack<E> implements Stack<E> {
         return !c.isEmpty();
     }
 
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@NotNull Collection<?> c) {
         return removeOrRetain(c, false);
     }
 
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
         return removeOrRetain(c, true);
     }
 

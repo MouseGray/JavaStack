@@ -1,17 +1,13 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
 
 public class StackTest {
     @Test
     public void arrayStackTest() {
         ArrayStack<String> arrayStack = new ArrayStack<>();
 
-        LinkedList<String> arr = new LinkedList<>();
-        arr.removeAll(arr);
         Assertions.assertTrue(arrayStack.empty());
 
         arrayStack.push("A");
@@ -71,28 +67,53 @@ public class StackTest {
     }
 
     @Test
-    public void iteratorTest() {
-        Random rnd = new Random();
+    public void stackCollectionTest() {
+        LinkedStack<String> linkedStack = new LinkedStack<>();
+        linkedStack.push("A");
+        linkedStack.push("A");
+        linkedStack.push("B");
+        linkedStack.push("C");
+        linkedStack.push("C");
+        linkedStack.push("D");
+        linkedStack.push("E");
+        collectionTest(linkedStack);
 
-        LinkedList<Integer> linkedStack = new LinkedList<>();
+        ArrayStack<String> arrayStack = new ArrayStack<>();
+        arrayStack.push("E");
+        arrayStack.push("D");
+        arrayStack.push("C");
+        arrayStack.push("C");
+        arrayStack.push("B");
+        arrayStack.push("A");
+        arrayStack.push("A");
+        collectionTest(arrayStack);
+    }
 
+    @Test
+    public void collectionTest(Stack<String> stack)
+    {
+        String[] expected = {"E", "D", "C", "C", "B", "A", "A"};
+            Assertions.assertArrayEquals(expected, stack.toArray());
 
+        String[] blankArray = {};
+            Assertions.assertArrayEquals(expected,stack.toArray(blankArray));
 
-        for (int j = 0; j < 10000; j++) {
-            linkedStack.add(rnd.nextInt());
-        }
-        //3100
-        long start = System.currentTimeMillis();
-        for(int i = 0; i < 10000; i++) {
-            LinkedList<Integer> res = (LinkedList<Integer>) linkedStack.stream().collect(new ReverseCollector<>(LinkedList::new));
-        }
+        Object[] castArray = {};
+            Assertions.assertArrayEquals(expected,stack.toArray(castArray));
 
-        System.out.println(System.currentTimeMillis() - start);
-        //linkedStack.stream().forEach(System.out::println);
+        List<String> removeElements = Arrays.asList("A", "C");
+        String[] expected2 = {"E", "D", "B"};
+            Assertions.assertTrue(stack.removeAll(removeElements));
+            Assertions.assertArrayEquals(expected2,stack.toArray());
 
+        List<String> retainElements = Collections.singletonList("D");
+        String[] expected3 = {"D"};
+            Assertions.assertTrue(stack.retainAll(retainElements));
+            Assertions.assertArrayEquals(expected3,stack.toArray());
 
-
-        //res.stream().forEach(System.out::println);
+        String[] expected4 = {};
+            Assertions.assertTrue(stack.remove("D"));
+            Assertions.assertArrayEquals(expected4,stack.toArray());
     }
 
     @Test
